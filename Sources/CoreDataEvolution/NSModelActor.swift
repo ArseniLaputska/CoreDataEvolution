@@ -9,7 +9,27 @@ import _Concurrency
 import CoreData
 import Foundation
 
+@available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
 public final class NSModelObjectContextExecutor: @unchecked Sendable, SerialExecutor {
+  public final let context: NSManagedObjectContext
+  public init(context: NSManagedObjectContext) {
+    self.context = context
+  }
+  
+    public func enqueue(_ job: UnownedJob) {
+        let unownedExecutor = asUnownedSerialExecutor()
+        context.perform {
+            job.runSynchronously(on: unownedExecutor)
+        }
+    }
+
+  public func asUnownedSerialExecutor() -> UnownedSerialExecutor {
+    UnownedSerialExecutor(ordinary: self)
+  }
+}
+
+@available(macOS 14.0, iOS 17.0, watchOS 10.0, tvOS 17.0, visionOS 1.0, *)
+public final class NSModelObjectContextExecutorJob: @unchecked Sendable, SerialExecutor {
   public final let context: NSManagedObjectContext
   public init(context: NSManagedObjectContext) {
     self.context = context
