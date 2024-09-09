@@ -18,7 +18,7 @@ public final class NSModelObjectContextExecutor: @unchecked Sendable, SerialExec
   
     public func enqueue(_ job: UnownedJob) {
         let unownedExecutor = asUnownedSerialExecutor()
-        context.perform {
+        context.performAndWait {
             job.runSynchronously(on: unownedExecutor)
         }
     }
